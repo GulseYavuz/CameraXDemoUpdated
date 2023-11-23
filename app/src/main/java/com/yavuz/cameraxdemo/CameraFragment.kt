@@ -38,7 +38,6 @@ import java.util.Locale
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 
-
 class CameraFragment : Fragment() {
     private var binding: FragmentCameraBinding? = null
     private val fragmentCameraBinding get() = binding!!
@@ -65,10 +64,10 @@ class CameraFragment : Fragment() {
     override fun onDestroyView() {
         binding = null
         super.onDestroyView()
-
         // Shut down our background executor
         imgCaptureExecutor.shutdown()
     }
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -105,7 +104,6 @@ class CameraFragment : Fragment() {
             }
         }
     }
-
     private fun startCamera() {
         val preview = Preview.Builder().build().also {
             it.setSurfaceProvider(fragmentCameraBinding.preview.surfaceProvider)
@@ -129,7 +127,6 @@ class CameraFragment : Fragment() {
         val fileName = SimpleDateFormat("yyyy-MM-dd-HH-mm-ss-SSS", Locale.US)
             .format(System.currentTimeMillis())
         val file = File(requireContext().filesDir, fileName)
-        FileUri.fileUriGet = file.toUri()
         val outputOptions = ImageCapture.OutputFileOptions
             .Builder(file)
             .build()
@@ -140,68 +137,21 @@ class CameraFragment : Fragment() {
                 override fun onError(exc: ImageCaptureException) {
                     Log.e(TAG, "Photo capture failed: ${exc.message}", exc)
                 }
-
                 override fun onImageSaved(output: ImageCapture.OutputFileResults) {
                     val uri = output.savedUri
-                    //   val savedFile = File(savedUri?.path ?: return)
-                    val bitmap = BitmapFactory.decodeFile(uri?.path)
-                    /*    val stream = ByteArrayOutputStream()
-                    bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream)
-                    val byteArray: ByteArray = stream.toByteArray()*/
-                   /* val action =
-                        CameraFragmentDirections.actionCameraFragmentToGalleryFragment()*/
-                    val args = Bundle()
-                    args.putString("uri", bitmap.toString())
+                    val modelUri = UriModel(uri)
+                    val action =
+                        CameraFragmentDirections.actionCameraFragmentToGalleryFragment(modelUri)
                     requireActivity().runOnUiThread {
-                        findNavController().navigate(R.id.action_cameraFragment_to_galleryFragment, args)
-                        }
-
-                  /*  findNavController()
-                        .navigate(R.id.action_cameraFragment_to_galleryFragment, args)*/
-
-                        //    Log.d(TAG, "Photo capture succeeded: $savedUri")
-
-                        /*            binding?.buttonPhotoView?.setOnClickListener {
-                        val bundle = Bundle()
-                        bundle.putParcelable("bitmap", bitmap)
-                        val action = CameraFragmentDirections.actionCameraFragmentToGalleryFragment()
-                        action.arguments = bundle
-                        // fragment.setArguments(bundle)
-
-                        requireActivity().runOnUiThread {
-                            findNavController().navigate(action)
-                        }
-                    }*/
-
-
-
-
-/*        fragmentCameraBinding.buttonPhotoView.setOnClickListener {
-            // Only navigate when the gallery has photos
-            lifecycleScope.launch {
-                val savedUriPath =file.toString()
-              *//*  val bundle = Bundle()
-                bundle.putParcelable("bitmap", bitmap)
-                fragment.setArguments(bundle)*//*
-
-           *//*     requireActivity().runOnUiThread {
-                    findNavController().navigate(action)
-
-                    *//**//*   Navigation.findNavController(requireActivity(), R.id.my_nav_host_fragment)
-                        .navigate(CameraFragmentDirections.actionCameraFragmentToPhotoFragment(
-                            mediaStoreUtils.mediaStoreCollection.toString()
-                        )
-                        )*//**//*
-                }*//*
-            }
-        }*/
-    }
+                        findNavController().navigate(action)
+                    }
+                }
             })
     }
 
 
     @RequiresApi(Build.VERSION_CODES.M)
-    fun animateFlash(){
+    fun animateFlash() {
         fragmentCameraBinding.root.postDelayed({
             fragmentCameraBinding.root.foreground = ColorDrawable(Color.WHITE)
             fragmentCameraBinding.root.postDelayed({
@@ -209,7 +159,8 @@ class CameraFragment : Fragment() {
             }, 50)
         }, 100)
     }
-    companion object{
+
+    companion object {
         private const val TAG = "CameraFragment"
     }
 }

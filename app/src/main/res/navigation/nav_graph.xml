@@ -25,7 +25,7 @@
         tools:layout="@layout/fragment_gallery" >
         <argument
             android:name="savedUriArgs"
-            app:argType="string"
+            app:argType="com.yavuz.cameraxdemo.UriModel"
             app:nullable="true"
             android:defaultValue="@null" />
         <action
